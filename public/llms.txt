@@ -1,0 +1,12 @@
+# Cloudly
+
+> Cloudly is a secure cloud storage app for uploading, organizing, sharing, and accessing your files from anywhere.
+
+Cloudly lets people store files safely, organize them in folders, star and find recent items, share files via links, and restore deleted items from the trash.
+
+## Pages
+
+- [Home](/): Overview of Cloudly and its features.
+- [Pricing](/pricing): Storage plans and pricing.
+- [Webinar](/webinar): Product webinar and walkthrough.
+- [Help Center](/help): Answers to common questions about using Cloudly.
