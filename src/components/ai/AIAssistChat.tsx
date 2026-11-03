@@ -172,7 +172,7 @@ export function AIAssistChat({ isOpen, onClose }: AIAssistChatProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 w-[420px] max-w-[calc(100vw-3rem)] bg-background border border-border/50 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-6 safe-bottom-offset w-[420px] max-w-[calc(100vw-3rem)] bg-background border border-border/50 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
