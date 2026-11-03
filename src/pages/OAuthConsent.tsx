@@ -12,7 +12,7 @@ type OAuthClient = {
   approveAuthorization: (id: string) => Promise<OAuthResult>;
   denyAuthorization: (id: string) => Promise<OAuthResult>;
 };
-const oauth = (supabase.auth as typeof supabase.auth & { oauth: OAuthClient }).oauth;
+const oauth = (supabase.auth as unknown as { oauth: OAuthClient }).oauth;
 
 export default function OAuthConsent() {
   const [params] = useSearchParams();
