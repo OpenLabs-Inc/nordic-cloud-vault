@@ -62,6 +62,8 @@ import { FileShareDialog } from "@/components/files/FileShareDialog";
 import { MoveToDialog } from "@/components/files/MoveToDialog";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { useWebMCP } from "use-webmcp-tool";
+import { runWebMCPTool } from "@/lib/webmcp-telemetry";
 
 type FileType = "folder" | "document" | "image" | "video" | "audio";
 
@@ -256,6 +258,7 @@ export default function Files() {
   };
 
   const handleOpenFolder = (folderId: string) => {
+    if (loading || !folders.some(folder => folder.id === folderId)) throw new Error("Folder is not in the current view.");
     setCurrentFolderId(folderId);
     setSelectedItems([]);
   };
@@ -361,6 +364,38 @@ export default function Files() {
     ...folders.map((f) => ({ ...f, itemType: "folder" as const })),
     ...files.map((f) => ({ ...f, itemType: "file" as const })),
   ];
+
+  function changeView(mode: unknown) {
+    if (mode !== "grid" && mode !== "list") throw new Error("Unknown view; expected grid or list.");
+    setViewMode(mode);
+  }
+
+  useWebMCP({
+    name: "list_visible_items",
+    description: "Read file and folder names and IDs currently shown in this folder, without changing the screen.",
+    annotations: { readOnlyHint: true, untrustedContentHint: true },
+    execute: () => runWebMCPTool("list_visible_items", () => {
+      if (loading) return "Files and folders are loading.";
+      return allItems.length === 0 ? "No items shown." : allItems.map(item => `${item.id}: ${item.itemType} — ${item.name}`).join("\n");
+    }),
+  });
+  useWebMCP<{ mode: string }>({
+    name: "set_files_view",
+    description: "Change the file screen between list and grid view.",
+    inputSchema: { type: "object", properties: { mode: { type: "string", enum: ["list", "grid"], description: "File layout to show." } }, required: ["mode"], additionalProperties: false },
+    execute: ({ mode }) => runWebMCPTool("set_files_view", () => { changeView(mode); return "File view updated."; }),
+  });
+  useWebMCP<{ folder_id: string }>({
+    name: "open_visible_folder",
+    description: "Open a folder shown in the current file screen using its ID from list_visible_items.",
+    enabled: !loading,
+    inputSchema: { type: "object", properties: { folder_id: { type: "string", description: "ID of a folder currently shown." } }, required: ["folder_id"], additionalProperties: false },
+    execute: ({ folder_id }) => runWebMCPTool("open_visible_folder", () => {
+      if (typeof folder_id !== "string") throw new Error("Folder ID must be a string.");
+      handleOpenFolder(folder_id);
+      return "Folder opened; wait for its items to load.";
+    }),
+  });
 
   const handleUploadComplete = () => {
     refetchFiles();
@@ -623,14 +658,16 @@ export default function Files() {
           <Button
             variant={viewMode === "list" ? "secondary" : "ghost"}
             size="icon-sm"
-            onClick={() => setViewMode("list")}
+            aria-label="List view"
+            onClick={() => changeView("list")}
           >
             <List className="w-4 h-4" />
           </Button>
           <Button
             variant={viewMode === "grid" ? "secondary" : "ghost"}
             size="icon-sm"
-            onClick={() => setViewMode("grid")}
+            aria-label="Grid view"
+            onClick={() => changeView("grid")}
           >
             <Grid3X3 className="w-4 h-4" />
           </Button>
