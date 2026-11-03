@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Cloud, Mail, Lock, User, Eye, EyeOff, ArrowRight, Check, Loader2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { oauthReturnPath } from "@/lib/oauth-return-path";
+import { supabase } from "@/integrations/supabase/client";
 
 const DEMO_EMAIL = "admin@example.com";
 const DEMO_PASSWORD = "12345678";
@@ -37,6 +39,9 @@ export default function Signup() {
   
   const { signUp } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const next = oauthReturnPath(params.get("next") ?? "/app");
+  const loginPath = `/login?next=${encodeURIComponent(next)}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,14 +58,15 @@ export default function Signup() {
     
     setLoading(true);
     
-    const { error } = await signUp(email, password, name);
+    const { error } = await signUp(email, password, name, next);
     
     if (error) {
       toast.error(error.message || "Failed to create account");
       setLoading(false);
     } else {
-      toast.success("Account created successfully!");
-      navigate("/app");
+      const { data } = await supabase.auth.getSession();
+      toast.success(data.session ? "Account created successfully!" : "Check your email to confirm your account and continue.");
+      navigate(data.session ? next : loginPath);
     }
   };
 
@@ -248,7 +254,7 @@ export default function Signup() {
 
           <p className="text-center text-sm text-muted-foreground mt-8">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary font-medium hover:underline">
+            <Link to={loginPath} className="text-primary font-medium hover:underline">
               Sign in
             </Link>
           </p>

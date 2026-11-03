@@ -22,6 +22,7 @@ import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ResetPassword from "@/pages/auth/ResetPassword";
+import OAuthConsent from "@/pages/OAuthConsent";
 
 // App Pages
 import Dashboard from "@/pages/app/Dashboard";
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
 
               {/* Public Share Route */}
               <Route path="/shared/:token" element={<PublicShare />} />

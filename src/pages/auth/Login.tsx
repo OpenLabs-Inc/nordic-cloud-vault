@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { oauthReturnPath } from "@/lib/oauth-return-path";
 
 const DEMO_EMAIL = "admin@example.com";
 const DEMO_PASSWORD = "12345678";
@@ -31,7 +32,9 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const from = (location.state as any)?.from?.pathname || "/app";
+  const nextParam = new URLSearchParams(location.search).get("next");
+  const from = oauthReturnPath(nextParam ?? (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? "/app");
+  const signupPath = nextParam !== null ? `/signup?next=${encodeURIComponent(from)}` : "/signup";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,7 +143,7 @@ export default function Login() {
 
           <p className="text-center text-sm text-muted-foreground mt-8">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-primary font-medium hover:underline">
+            <Link to={signupPath} className="text-primary font-medium hover:underline">
               Sign up free
             </Link>
           </p>

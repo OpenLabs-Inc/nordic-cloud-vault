@@ -1,0 +1,4 @@
+# Architecture rules
+- Author the OAuth-protected read-only MCP catalog in `src/lib/mcp`, with one tool per file and one lazy caller-scoped database factory; the Vite plugin owns the generated edge function so permissions and transport stay consistent.
+- Keep browser-local file tools in the Files screen with shared UI actions and static-name telemetry; tools must disappear when the screen unmounts and never exceed the visible collection.
+- Validate OAuth return paths with the shared helper at authentication boundaries and preserve consent through login and email signup; external redirects must never be accepted from `next`.
